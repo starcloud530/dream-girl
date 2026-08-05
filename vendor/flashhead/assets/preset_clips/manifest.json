@@ -1,0 +1,24 @@
+{
+  "clips": [
+    {
+      "id": "sway_a",
+      "video": "xiaoya_seedance_sway_a_512x768.mp4",
+      "boxes": "xiaoya_seedance_sway_a_512x768.boxes.jsonl"
+    },
+    {
+      "id": "sway_b",
+      "video": "xiaoya_seedance_sway_b_512x768.mp4",
+      "boxes": "xiaoya_seedance_sway_b_512x768.boxes.jsonl"
+    },
+    {
+      "id": "hair_hand",
+      "video": "xiaoya_seedance_hair_hand_512x768.mp4",
+      "boxes": "xiaoya_seedance_hair_hand_512x768.boxes.jsonl"
+    },
+    {
+      "id": "think_idle",
+      "video": "xiaoya_seedance_think_idle_512x768.mp4",
+      "boxes": "xiaoya_seedance_think_idle_512x768.boxes.jsonl"
+    }
+  ]
+}

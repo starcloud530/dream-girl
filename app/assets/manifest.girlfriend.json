@@ -1,0 +1,13 @@
+{
+  "stylePrefix": "photorealistic cinematic portrait, soft warm lighting, shallow depth of field, east asian young woman, long dark hair, gentle expression, resting chin on hand, white top, delicate necklace, dark minimalist background, no text, no watermark",
+  "assets": [
+    {
+      "id": "portrait/xiaoya-v1",
+      "label": "赛博女友小雅立绘 V1",
+      "prompt": "half body portrait, looking at viewer, intimate companion vibe, subtle makeup, film grain, 85mm lens, vertical 2:3 aspect ratio",
+      "size": "1600x2400",
+      "maxHeight": 2400,
+      "output": "demo/assets/character/xiaoya-v1.png"
+    }
+  ]
+}

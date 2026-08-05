@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OrchestratorWebSocketEvents",
+  "description": "Mac orchestrator -> browser WebSocket event envelope",
+  "type": "object",
+  "required": ["type", "session_id", "ts"],
+  "properties": {
+    "type": {
+      "enum": [
+        "state",
+        "assistant_delta",
+        "assistant_done",
+        "error",
+        "metrics"
+      ]
+    },
+    "session_id": { "type": "string" },
+    "ts": { "type": "number", "description": "Unix epoch seconds" },
+    "payload": { "type": "object" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "state" } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "required": ["state"],
+            "properties": {
+              "state": { "enum": ["idle", "thinking", "speaking"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "assistant_delta" } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "required": ["text"],
+            "properties": { "text": { "type": "string" } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "error" } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

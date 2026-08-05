@@ -1,0 +1,54 @@
+# T1 · 384² 脸推理，再按 YuNet box 贴回 2:3 立绘展示
+tier: t1_384_x2
+
+paths:
+  models_root: "${MODELS_ROOT}"
+  cyberverse_models_dir: "${CYBERVERSE_MODELS_DIR}"
+  # 模型输入：紧脸 1:1（检测裁切）
+  sample_image: "${CYBER_GF_DATA_ROOT}/demo/assets/character/xiaoya-v1-face1x1.jpg"
+  sample_audio: "${CYBER_GF_DATA_ROOT}/demo/tmp/frame_capture/tone_20260727_142329.wav"
+
+runtime:
+  model_type: pro
+  checkpoint_dir: "${MODELS_ROOT}/SoulX-FlashHead-1_3B"
+  wav2vec_dir: "${MODELS_ROOT}/wav2vec2-base-960h"
+  seed: 9999
+  use_face_crop: false
+  compile_model: true
+  compile_vae: true
+  world_size: 1
+  letterbox_input: false
+  # paste_back 后已是 512x768，不再做方图 display 放大
+  display_size: 0
+
+upscale:
+  enabled: false
+  model: "${AUTODL_FS_MODELS}/upscale_models/RealESRGAN_x2.pth"
+
+infer_params:
+  frame_num: 33
+  motion_frames_latent_num: 2
+  tgt_fps: 20
+  sample_rate: 16000
+  sample_shift: 5
+  color_correction_strength: 1.0
+  cached_audio_duration: 8
+  num_heads: 12
+  height: 384
+  width: 384
+
+# 脸 → 贴回 2:3（box 相对原立绘 960x1440，加载时缩到 canvas）
+composite:
+  enabled: true
+  mode: paste_back
+  face_ref: "${CYBER_GF_DATA_ROOT}/demo/assets/character/xiaoya-v1-face1x1.jpg"
+  body_image: "${CYBER_GF_DATA_ROOT}/demo/assets/character/xiaoya-v1.jpg"
+  face_box: [93, 183, 833, 923]
+  canvas_width: 512
+  canvas_height: 768
+  feather_px: 16
+
+benchmark:
+  warmup_runs: 2
+  runs: 3
+  output_dir: results/v1

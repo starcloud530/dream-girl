@@ -1,0 +1,18 @@
+# Qwen3-TTS CustomVoice 本地服务（内置 speaker）
+# 权重目录：bash scripts/download_qwen_tts.sh
+
+models_root: ${MODELS_ROOT}
+model_id: Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice
+model_dir: ${MODELS_ROOT}/qwen-tts/Qwen3-TTS-12Hz-0.6B-CustomVoice
+
+device: cuda:0
+dtype: bfloat16
+attn_implementation: flash_attention_2   # 不可用则自动回退 sdpa
+
+# 小雅默认：Serena（温柔年轻女声）；备选 Vivian
+speaker: Serena
+language: Chinese
+instruct: 温柔亲切，语速自然，适合日常对话
+
+sample_rate: 16000   # FlashHead 输入
+non_streaming_mode: false

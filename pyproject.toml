@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dream-girl"
+version = "0.1.0"
+description = "Dream Girl — single-GPU near-realtime talking avatar MVP (LLM + TTS + FlashHead + MSE)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Dream Girl contributors" }]
+dependencies = [
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.32.0",
+  "httpx>=0.28.0",
+  "websockets>=14.0",
+  "pyyaml>=6.0",
+  "python-multipart>=0.0.18",
+  "edge-tts>=7.0.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.24"]
+
+[project.urls]
+Homepage = "https://github.com/starcloud530/dream-girl"
+Documentation = "https://github.com/starcloud530/dream-girl#readme"
+
+[tool.setuptools.packages.find]
+where = ["app"]
+include = ["packages*", "services*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["app"]

@@ -1,0 +1,311 @@
+:root {
+  --bg: #0a0a0f;
+  --panel: #12121a;
+  --text: #e8e6e3;
+  --muted: #8a8698;
+  --accent: #c9a227;
+  --orb-idle: #c9a227;
+  --orb-think: #6b5cff;
+  --orb-speak: #2ec4ff;
+  --danger: #e85d6c;
+  /* 手机竖屏播放目标（与 config portrait.video_* 一致） */
+  --avatar-w: 480px;
+  --avatar-h: 768px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 30% 20%, #1a1520 0%, var(--bg) 55%);
+  color: var(--text);
+  font-family: "PingFang SC", "Helvetica Neue", sans-serif;
+}
+
+.app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.header h1 {
+  margin: 0;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.status {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr 220px 1.2fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  min-height: 70vh;
+}
+
+.left, .center, .right {
+  background: rgba(18, 18, 26, 0.6);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.right {
+  align-self: start;
+}
+
+.poetry {
+  min-height: 3rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.chat {
+  height: 360px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.msg {
+  max-width: 90%;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.msg.user {
+  align-self: flex-end;
+  background: #2a2438;
+}
+
+.msg.assistant {
+  align-self: flex-start;
+  background: #1e2430;
+}
+
+.composer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.composer input {
+  flex: 1;
+  background: #0d0d14;
+  border: 1px solid #2a2a38;
+  color: var(--text);
+  padding: 0.65rem 0.8rem;
+  border-radius: 8px;
+}
+
+.composer button {
+  background: var(--accent);
+  color: #111;
+  border: none;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.composer button.danger {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.orb {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orb-core {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--orb-idle);
+  box-shadow: 0 0 40px var(--orb-idle);
+}
+
+.orb.thinking .orb-core {
+  background: var(--orb-think);
+  box-shadow: 0 0 40px var(--orb-think);
+}
+
+.orb.speaking .orb-core {
+  background: var(--orb-speak);
+  box-shadow: 0 0 40px var(--orb-speak);
+}
+
+.orb-ring {
+  position: absolute;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  opacity: 0.35;
+  color: var(--orb-idle);
+}
+
+.orb.thinking .orb-ring { color: var(--orb-think); }
+.orb.speaking .orb-ring { color: var(--orb-speak); }
+
+.ring1 {
+  width: 70px;
+  height: 70px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.ring2 {
+  width: 100px;
+  height: 100px;
+  animation: pulse 2s ease-in-out infinite 0.4s;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.08); opacity: 0.55; }
+}
+
+.orb-label {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.avatar-frame {
+  position: relative;
+  width: min(100%, 360px);
+  height: auto;
+  margin: 0 auto;
+  aspect-ratio: 2 / 3; /* 半身 2:3 */
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0d0d14;
+}
+
+.avatar-frame img,
+.avatar-frame video,
+.avatar-frame canvas.av-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.avatar-frame img#portrait {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #0d0d14;
+}
+
+/* 默认：video 铺满（后端已合成 2:3 时） */
+.avatar-frame video.av-a,
+.avatar-frame video.av-b,
+.avatar-frame video.av-mse,
+.avatar-frame video#avatar {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: transparent;
+}
+
+/*
+ * face-stack：顶 1:1 动画面完全盖住 2:3 立绘上 2/3（等宽）。
+ * 底部约 12% 柔和羽化，叠到静图上消接缝。
+ */
+.avatar-frame.face-stack video.av-a,
+.avatar-frame.face-stack video.av-b,
+.avatar-frame.face-stack video.av-mse,
+.avatar-frame.face-stack video#avatar {
+  inset: auto;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  max-height: none;
+  object-fit: cover;
+  object-position: center top;
+  z-index: 2;
+  background: transparent;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 88%,
+    rgba(0, 0, 0, 0.85) 92%,
+    rgba(0, 0, 0, 0.45) 96%,
+    rgba(0, 0, 0, 0.15) 98.5%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 88%,
+    rgba(0, 0, 0, 0.85) 92%,
+    rgba(0, 0, 0, 0.45) 96%,
+    rgba(0, 0, 0, 0.15) 98.5%,
+    transparent 100%
+  );
+}
+
+.avatar-frame canvas.av-canvas {
+  object-fit: unset;
+  background: #0d0d14;
+}
+
+.avatar-frame.speaking:not(.face-stack) img {
+  animation: breathe 1.2s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+}
+
+.right video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.metrics {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+@media (max-width: 960px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+}

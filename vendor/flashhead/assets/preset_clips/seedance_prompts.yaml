@@ -1,0 +1,53 @@
+# Dreamina Seedance 2.0 · 专业数字人 idle / 手势底片
+# 参考图：demo/assets/character/xiaoya-v1.jpg（2:3，手托腮）
+# 硬约束：固定机位、不乱晃镜头；身份与构图锁死首帧
+
+common_negative: >
+  camera move, camera pan, camera tilt, camera zoom, dolly, orbit, handheld shake,
+  dutch angle, parallax, push in, pull out, reframing, talking, lip sync,
+  mouth opening wide, singing, walking away, standing up, face morph,
+  identity change, extra limbs, deformed hands, text, watermark
+
+clips:
+  - id: sway_a
+    filename: xiaoya_seedance_sway_a_512x768.mp4
+    duration_s: 15
+    prompt: >
+      Professional digital human idle loop. Locked static camera, tripod shot,
+      no camera movement at all. Keep the exact same half-body 2:3 framing as the
+      first frame. Young East Asian woman resting chin on hand, white top, dark
+      background. Natural micro-performance only: soft blinks, tiny head nod,
+      slight head tilt, gentle breathing. Fingers stay near the chin with very
+      small adjustments. Calm gentle smile. Photoreal, high detail, no talking.
+
+  - id: sway_b
+    filename: xiaoya_seedance_sway_b_512x768.mp4
+    duration_s: 15
+    prompt: >
+      Professional digital human companion idle. Absolutely fixed camera, no pan
+      zoom or shake. Same composition as first frame, chin resting on hand.
+      Clear but elegant motions: blink, soft nod yes, brief look slightly upward
+      then back to camera, subtle shoulder breathe. Hands remain supporting the
+      chin. No walking, no camera motion. Photoreal cinematic portrait, 2:3.
+
+  - id: hair_hand
+    filename: xiaoya_seedance_hair_hand_512x768.mp4
+    duration_s: 15
+    prompt: >
+      Professional digital human gesture clip. Locked camera, no camera shake.
+      Start and end with chin resting on hand like the first frame. In the middle,
+      one hand leaves the chin, smoothly brushes a hair strand near the ear, then
+      returns to chin support — medium tempo, natural and clear, not slow-motion.
+      Include blinks and a small head tilt. Same identity and framing throughout.
+      Photoreal, dark background, 2:3 vertical, no talking.
+
+  - id: think_idle
+    filename: xiaoya_seedance_think_idle_512x768.mp4
+    duration_s: 15
+    prompt: >
+      Professional digital human thoughtful idle. Completely static camera,
+      no handheld wobble. Chin on hand as base pose. Perform: finger lightly taps
+      the side of the cheek twice, soft blinks, small nod, brief glance upward
+      as if thinking, then return to gentle eye contact. Keep upper body stable,
+      only head and fingers move. Photoreal, same framing as first frame, 2:3,
+      no talking, no camera motion.

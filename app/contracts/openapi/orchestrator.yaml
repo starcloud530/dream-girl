@@ -1,0 +1,97 @@
+openapi: 3.1.0
+info:
+  title: Cyber Girlfriend Orchestrator
+  version: 1.0.0
+  description: Mac-local dialogue pipeline (LLM + TTS + avatar client)
+servers:
+  - url: http://localhost:8011
+    description: Orchestrator default port
+paths:
+  /v1/health:
+    get:
+      operationId: health
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+                  avatar_service: { type: string }
+  /v1/session:
+    post:
+      operationId: createSession
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                avatar_id:
+                  type: string
+                  default: xiaoya_v1
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+  /v1/session/{session_id}/message:
+    post:
+      operationId: sendMessage
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string }
+      responses:
+        "200":
+          description: Message accepted; events on WebSocket
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accepted: { type: boolean }
+  /v1/session/{session_id}/interrupt:
+    post:
+      operationId: interruptSession
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "204":
+          description: Interrupted
+  /v1/session/{session_id}/events:
+    get:
+      operationId: sessionEventsWs
+      description: WebSocket upgrade — see contracts/types/events.json
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "101":
+          description: Switching Protocols
+components:
+  parameters:
+    SessionId:
+      name: session_id
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    SessionResponse:
+      type: object
+      required: [session_id, avatar_session_id, events_url]
+      properties:
+        session_id: { type: string }
+        avatar_session_id: { type: string }
+        livetalking_session_id: { type: integer }
+        events_url: { type: string }
+        webrtc_url: { type: string }

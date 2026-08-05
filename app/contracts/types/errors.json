@@ -1,0 +1,10 @@
+{
+  "errors": [
+    { "code": "SESSION_NOT_FOUND", "http": 404, "message": "Session does not exist" },
+    { "code": "AVATAR_UNAVAILABLE", "http": 503, "message": "Avatar service not ready" },
+    { "code": "LLM_ERROR", "http": 502, "message": "LLM provider failed" },
+    { "code": "TTS_ERROR", "http": 502, "message": "TTS provider failed" },
+    { "code": "INTERRUPTED", "http": 200, "message": "Turn was interrupted" },
+    { "code": "INVALID_AUDIO", "http": 400, "message": "PCM must be 16kHz mono s16le" }
+  ]
+}

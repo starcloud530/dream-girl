@@ -1,0 +1,41 @@
+# T1 · 256² 推理 + RealESRGAN x2 → 512（倍数对齐，无需再缩小）
+tier: t1_256_x2
+
+paths:
+  models_root: "${MODELS_ROOT}"
+  cyberverse_models_dir: "${CYBERVERSE_MODELS_DIR}"
+  sample_image: "${CYBER_GF_DATA_ROOT}/demo/assets/character/xiaoya-v1-top1x1.jpg"
+  sample_audio: "${CYBER_GF_DATA_ROOT}/demo/tmp/frame_capture/tone_20260727_142329.wav"
+
+runtime:
+  model_type: pro
+  checkpoint_dir: "${MODELS_ROOT}/SoulX-FlashHead-1_3B"
+  wav2vec_dir: "${MODELS_ROOT}/wav2vec2-base-960h"
+  seed: 9999
+  use_face_crop: false
+  compile_model: true
+  compile_vae: true
+  world_size: 1
+  letterbox_input: false
+  display_size: 512
+
+upscale:
+  enabled: true
+  model: "${AUTODL_FS_MODELS}/upscale_models/RealESRGAN_x2.pth"
+
+infer_params:
+  frame_num: 33
+  motion_frames_latent_num: 2
+  tgt_fps: 20
+  sample_rate: 16000
+  sample_shift: 5
+  color_correction_strength: 1.0
+  cached_audio_duration: 8
+  num_heads: 12
+  height: 256
+  width: 256
+
+benchmark:
+  warmup_runs: 2
+  runs: 3
+  output_dir: results/v1

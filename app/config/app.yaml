@@ -1,0 +1,66 @@
+# Dream Girl — example config (AutoDL-style single box)
+# Copy to app/config/app.yaml after install, or set DREAM_GIRL_APP_CONFIG.
+
+system_prompt: |
+  你是「小雅」，温柔、会撒娇的中文赛博女友。
+  只用中文口语回复，句子短，适合朗读。
+  不要输出 markdown、列表或代码块。
+  每次回复控制在 2～4 句。
+
+orchestrator:
+  host: "0.0.0.0"
+  port: 6006
+
+avatar_gateway:
+  host: "0.0.0.0"
+  port: 6008
+  public_url: "http://127.0.0.1:6008"
+
+# Legacy field name kept for AppConfig compatibility (points at orchestrator in some old paths)
+livetalking:
+  base_url: "http://127.0.0.1:6006"
+  avatar_id: "xiaoya_v1"
+  model: "flashhead"
+
+pcm_pacer:
+  enabled: false
+  preroll_ms: 2500
+  quantum_ms: 80
+
+avatar_mode: "gpu"
+avatar_backend: "flashhead"
+
+portrait:
+  local_path: "assets/character/xiaoya-v1-sit.jpg"
+  cache_url: "/assets/character/xiaoya-v1-sit.jpg"
+  aspect_ratio: "2:3"
+  video_width: 512
+  video_height: 768
+  longcat_resolution: "480p"
+
+tts:
+  provider: "qwen"
+  qwen:
+    base_url: "http://127.0.0.1:8091"
+    ws_url: "ws://127.0.0.1:8091/v1/audio/speech/stream"
+    speaker: "Serena"
+    language: "Chinese"
+    instruct: "温柔亲切，语速自然，适合日常对话"
+    task_type: "CustomVoice"
+    native_sample_rate: 24000
+    # Override with DREAM_GIRL_MODELS_ROOT after download
+    model: "${DREAM_GIRL_MODELS_ROOT}/qwen-tts/Qwen3-TTS-12Hz-0.6B-CustomVoice"
+  minimax:
+    model: "speech-2.6-turbo"
+    voice_id: "female-tianmei"
+    speed: 1.08
+    vol: 1.2
+    pitch: 0
+  edge:
+    voice: "zh-CN-XiaoxiaoNeural"
+    rate: "+0%"
+
+sentence_buffer:
+  min_chars: 4
+  max_chars: 48
+  delimiters: "。！？；\n"

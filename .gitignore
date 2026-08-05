@@ -1,0 +1,45 @@
+# Secrets & local env
+.env
+.env.*
+!.env.example
+*.pem
+**/credentials*.json
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+
+# Runtime / large artifacts
+*.pth
+*.onnx
+*.safetensors
+*.ckpt
+*.bin
+*.pt
+*.mp4
+*.wav
+*.pcm
+out.pcm
+tmp/
+results/
+**/frame_capture/
+**/cyber-gf-logs/
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Model weights (download via scripts)
+vendor/flashhead/weights/
+models/
+**/autodl-fs/

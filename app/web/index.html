@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>赛博女友 · 小雅</title>
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <link rel="stylesheet" href="/styles.css?v=22" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>赛博女友</h1>
+      <p class="subtitle">天工开帧魔改版 · V1 Demo</p>
+      <div id="conn-status" class="status">未连接</div>
+    </header>
+
+    <main class="main">
+      <section class="left">
+        <div id="poetry" class="poetry"></div>
+        <div id="chat" class="chat"></div>
+        <div class="composer">
+          <input id="input" type="text" placeholder="和小雅说点什么…" autocomplete="off" />
+          <button id="send" type="button">发送</button>
+          <button id="interrupt" type="button" class="danger">打断</button>
+        </div>
+      </section>
+
+      <section class="center">
+        <div id="orb" class="orb idle">
+          <div class="orb-core"></div>
+          <div class="orb-ring ring1"></div>
+          <div class="orb-ring ring2"></div>
+        </div>
+        <p id="orb-label" class="orb-label">点击发送开始</p>
+      </section>
+
+      <section class="right">
+        <!-- 默认 2:3 全幅；session.layout=frontend_stack 时再加 face-stack 顶叠 -->
+        <div class="avatar-frame">
+          <img id="portrait" src="/assets/character/xiaoya-v1-sit.jpg" alt="小雅" />
+          <video id="avatar" autoplay playsinline muted hidden></video>
+        </div>
+        <p id="metrics" class="metrics"></p>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="/ui/session.js?v=27"></script>
+</body>
+</html>
