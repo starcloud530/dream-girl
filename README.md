@@ -45,6 +45,8 @@ bash deploy/autodl/healthcheck.sh
 
 `install.sh` downloads FlashHead + Qwen3-TTS **0.6B** into `DREAM_GIRL_MODELS_ROOT` (default `/root/autodl-fs/models`) and bootstraps vLLM-Omni. Use `SKIP_VLLM_OMNI=1` only if you switch `tts.provider` to `minimax`/`edge`.
 
+**Weights (re-runnable):** `bash deploy/autodl/download_weights.sh` — FlashHead + Qwen3-TTS 0.6B (ModelScope first for TTS; `HF_ENDPOINT` for HF mirror). After a dropped connection, re-run the same command. `SKIP_DOWNLOAD=1 bash deploy/autodl/install.sh` skips downloads during install.
+
 Open the AutoDL custom service mapped to **port 6006** (HTTPS portal).
 
 ## Layout

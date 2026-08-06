@@ -49,8 +49,7 @@ fi
 
 echo "== download weights =="
 export MODELS_ROOT DREAM_GIRL_MODELS_ROOT="${MODELS_ROOT}"
-(cd "${FH}" && bash scripts/download_weights.sh) || echo "WARN: FlashHead weights download failed"
-(cd "${FH}" && bash scripts/download_qwen_tts.sh) || echo "WARN: Qwen-TTS 0.6B download failed"
+bash "${ROOT}/deploy/autodl/download_weights.sh" || echo "WARN: weight download failed — re-run: bash ${ROOT}/deploy/autodl/download_weights.sh"
 
 echo "== vLLM-Omni (Qwen TTS server) =="
 if [[ "${SKIP_VLLM_OMNI:-0}" == "1" ]]; then
