@@ -62,16 +62,3 @@ Open the AutoDL custom service mapped to **port 6006** (HTTPS portal).
 ## License
 
 Apache-2.0 for this repository's orchestration and deploy scripts. Third-party models/runtimes: see [NOTICE](NOTICE).
-
-### License checklist（商用前必读）
-
-本仓编排代码可按 Apache-2.0 使用；**能否商用取决于你实际拉取/调用的上游权重与 API**，须自行核对原文。约 2 分钟自查：
-
-| # | 组件 | 你要核对什么 | 入口 |
-|---|------|--------------|------|
-| 1 | **Qwen3-TTS**（默认本地 TTS） | 模型卡 / LICENSE 是否允许你的商用场景；权重由 `install`/`download` 脚本拉取，**不随本仓分发** | [HF Qwen3-TTS-0.6B-CustomVoice](https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice) · [ModelScope](https://modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice) |
-| 2 | **SoulX-FlashHead**（数字人） | 代码仓与 `Model_Pro` 权重许可；是否允许再分发 / 商用产品嵌入 | [SoulX-FlashHead 代码](https://github.com/Soul-AILab/SoulX-FlashHead) · [权重 HF](https://huggingface.co/Soul-AILab/SoulX-FlashHead-1_3B) |
-| 3 | **vLLM / vLLM-Omni** | 运行时许可证（通常 Apache-2.0）与依赖条款 | [vLLM](https://github.com/vllm-project/vllm) · [vLLM-Omni](https://github.com/vllm-project/vllm-omni) |
-| 4 | **自查** | DeepSeek / MiniMax 等云 API 的 ToS；`assets/character/` 仅为 demo 立绘，**生产必须换成自有授权素材** | [NOTICE](NOTICE) · [assets/character/README.md](assets/character/README.md) |
-
-**一句话决策**：本仓 ≠ 上游商用授权。未读完上表对应链接前，不要假设可上线收费产品。完整第三方说明见 [NOTICE](NOTICE)。
