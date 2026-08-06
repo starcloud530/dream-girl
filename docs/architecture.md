@@ -33,12 +33,23 @@ Public path is **HTTP MSE**, not WebRTC (AutoDL HTTPS portals lack reliable UDP/
 
 ## Extensibility boundary
 
-`app/` must talk to avatar runtimes **only** via Gateway HTTP:
+`app/` must talk to avatar runtimes **only** via Gateway HTTP/SSE (and optional WS).
+**Contract source of truth:** [app/contracts/openapi/avatar.yaml](../app/contracts/openapi/avatar.yaml)
+(aligned with `vendor/flashhead/serve/gateway.py`).
 
+Public MSE path:
+
+- `GET /v1/health`
 - `POST /v1/avatar/session`
-- `POST /v1/avatar/{id}/audio` (+ `?end=1`)
-- `POST /v1/avatar/{id}/interrupt`
-- `GET /v1/avatar/{id}/av/sse`
-- `GET /v1/avatar/{id}/mp4/{chunk}`
+- `POST /v1/avatar/{session_id}/audio` (+ `?end=1`)
+- `POST /v1/avatar/{session_id}/interrupt`
+- `GET /v1/avatar/{session_id}/av/sse`
+- `GET /v1/avatar/{session_id}/mp4/{chunk_index}`
+
+Debug / alternate WebSocket (same OpenAPI file):
+
+- `WS /v1/avatar/{session_id}/audio/ws`
+- `WS /v1/avatar/{session_id}/av/ws`
+- `WS /v1/avatar/{session_id}/frames/ws`
 
 Swap FlashHead later by implementing the same contract under a new `avatar_backend`.

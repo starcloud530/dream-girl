@@ -2,55 +2,92 @@ openapi: 3.1.0
 info:
   title: Dream Girl Avatar Gateway
   version: 0.1.0
-  description: >
-    FlashHead talking-head gateway. App talks to this HTTP contract only
-    (no direct Python imports of vendor/flashhead).
+  description: |
+    FlashHead talking-head gateway HTTP/SSE/WebSocket contract.
+    `app/` must call this surface only (no `import vendor.flashhead`).
+
+    **Public playback path:** MSE + fMP4 via `POST …/audio` → `GET …/av/sse` → `GET …/mp4/{chunk_index}`.
+    WebSocket routes exist for debug / alternate clients; they are not the AutoDL public path.
+
+    Source of truth for routes: `vendor/flashhead/serve/gateway.py`.
 servers:
   - url: http://127.0.0.1:6008
     description: FlashHead Gateway (GPU box)
+tags:
+  - name: health
+  - name: session
+  - name: audio
+  - name: playback
+  - name: control
+  - name: websocket
+    description: Alternate / debug transports (not the public MSE path)
 paths:
   /v1/health:
     get:
+      tags: [health]
       operationId: health
+      summary: Gateway readiness and runtime flags
       responses:
         "200":
-          description: Service health (includes face_preroll_ms, av_mode, etc.)
-  /v1/avatar/session:
-    post:
-      operationId: createAvatarSession
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                avatar_id:
-                  type: string
-      responses:
-        "200":
-          description: Session created
+          description: Always 200; `status` is `ok` or `starting`
           content:
             application/json:
               schema:
-                type: object
-                required: [session_id]
-                properties:
-                  session_id:
-                    type: string
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: ok
+                backend: flashhead
+                mode: engine
+                av_mode: mse_fmp4
+                face_mse_format: fmp4
+                pcm_http: true
+                face_preroll_ms: 1400
+
+  /v1/avatar/session:
+    post:
+      tags: [session]
+      operationId: createAvatarSession
+      summary: Create an avatar session
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSessionRequest"
+      responses:
+        "200":
+          description: Session created with playback path hints
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateSessionResponse"
+        "503":
+          description: Engine/gateway not ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+              example:
+                detail: FLASHHEAD_NOT_READY
+
   /v1/avatar/{session_id}/audio:
     post:
+      tags: [audio]
       operationId: pushPcm
+      summary: Push PCM over HTTP (recommended ingest)
+      description: |
+        Body is raw PCM (s16le mono @ 16 kHz, matching Engine).
+        Query `end=1|true|yes` flushes the turn / starts face after preroll rules.
+        Returns 204 immediately; inference runs in the background.
       parameters:
-        - name: session_id
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/SessionId"
         - name: end
           in: query
+          required: false
+          description: Flush / end-of-turn marker
           schema:
-            type: integer
-            enum: [0, 1]
+            type: string
+            enum: ["0", "1", "true", "yes"]
       requestBody:
         required: true
         content:
@@ -60,52 +97,361 @@ paths:
               format: binary
       responses:
         "204":
-          description: PCM accepted
+          description: PCM accepted (may be empty body when only `?end=1`)
+
   /v1/avatar/{session_id}/interrupt:
     post:
+      tags: [control]
       operationId: interruptAvatar
+      summary: Reset turn buffers and notify SSE clients
+      description: |
+        Clears PCM/MP4 queues for the session. Connected `av/sse` clients receive
+        `{"type":"status","event":"turn_reset"}` so the browser can rebuild the MSE timeline.
       parameters:
-        - name: session_id
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/SessionId"
       responses:
         "204":
-          description: Turn reset / interrupt
+          description: Turn reset
+
   /v1/avatar/{session_id}/av/sse:
     get:
+      tags: [playback]
       operationId: avSse
-      summary: SSE stream of av_mp4 metadata (chunk, url, duration_ms, format)
+      summary: SSE stream of av_mp4 metadata (public MSE path)
+      description: |
+        `text/event-stream`. First event is status open; then `av_mp4` events with
+        `url` pointing at `GET /v1/avatar/{session_id}/mp4/{chunk}`. Keepalives every ~20s
+        as SSE comments (`: keepalive`). Soft-creates session if missing.
       parameters:
-        - name: session_id
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/SessionId"
       responses:
         "200":
-          description: text/event-stream
-  /v1/avatar/{session_id}/mp4/{chunk}:
+          description: Event stream
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                example: no-cache
+            X-Accel-Buffering:
+              schema:
+                type: string
+                example: "no"
+          content:
+            text/event-stream:
+              schema:
+                type: string
+              examples:
+                open:
+                  summary: Connection open
+                  value: |
+                    data: {"type":"status","event":"open","mode":"av_sse","preroll_hint":1,"backend":"flashhead"}
+                av_mp4:
+                  summary: Segment ready
+                  value: |
+                    data: {"type":"av_mp4","chunk":1,"bytes":12345,"fps":20,"duration_ms":1400,"format":"fmp4","url":"/v1/avatar/{session_id}/mp4/1"}
+                turn_reset:
+                  summary: After interrupt
+                  value: |
+                    data: {"type":"status","event":"turn_reset"}
+
+  /v1/avatar/{session_id}/mp4/{chunk_index}:
     get:
+      tags: [playback]
       operationId: getMp4Chunk
       summary: Fetch fMP4/MP4 segment bytes for MSE
+      description: |
+        Chunk indices are produced by the gateway (preroll hint: start playback at chunk=1).
+        Media type is always `video/mp4` even when remuxed as fMP4 or (debug) mpegts bytes.
       parameters:
-        - name: session_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: chunk
+        - $ref: "#/components/parameters/SessionId"
+        - name: chunk_index
           in: path
           required: true
           schema:
             type: integer
+            minimum: 0
       responses:
         "200":
-          description: media bytes
+          description: Segment bytes
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                example: no-store
+            Content-Length:
+              schema:
+                type: integer
           content:
             video/mp4:
               schema:
                 type: string
                 format: binary
+        "404":
+          description: Unknown session or chunk not yet / no longer available
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+              examples:
+                session:
+                  value:
+                    detail: SESSION_NOT_FOUND
+                chunk:
+                  value:
+                    detail: CHUNK_NOT_FOUND
+
+  /v1/avatar/{session_id}/audio/ws:
+    get:
+      tags: [websocket, audio]
+      operationId: audioWs
+      summary: WebSocket PCM ingest (alternate)
+      description: |
+        **WebSocket upgrade** (not plain HTTP GET).
+        - Binary frames → PCM push (`end=false`)
+        - Text JSON `{"end": true}` or `{"type": "end"}` → flush
+        - On disconnect, gateway flushes end automatically
+        Soft-creates session if missing.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "101":
+          description: Switching Protocols (WebSocket)
+
+  /v1/avatar/{session_id}/av/ws:
+    get:
+      tags: [websocket, playback]
+      operationId: avWs
+      summary: WebSocket AV mux (JSON meta + MP4 binary)
+      description: |
+        **WebSocket upgrade**. After open, server sends status JSON then pairs of
+        `av_mp4` JSON + one binary MP4 frame per segment. Soft-creates session if missing.
+        Open message example:
+        `{"type":"status","event":"open","mode":"av_mp4","fps":20,"sample_rate":16000,"backend":"flashhead","preroll_hint":1}`
+        Segment meta example:
+        `{"type":"av_mp4","chunk":1,"fps":20,"sample_rate":16000,"bytes":12345}` then binary MP4.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "101":
+          description: Switching Protocols (WebSocket)
+
+  /v1/avatar/{session_id}/frames/ws:
+    get:
+      tags: [websocket]
+      operationId: framesWs
+      summary: WebSocket JPEG preview (debug)
+      description: |
+        **WebSocket upgrade**. Streams JPEG binary frames (not MSE).
+        Query `fps` clamped to 5–25 (default 15). Missing session → close with code 4404.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: fps
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 5
+            maximum: 25
+            default: 15
+      responses:
+        "101":
+          description: Switching Protocols (WebSocket)
+
+components:
+  parameters:
+    SessionId:
+      name: session_id
+      in: path
+      required: true
+      schema:
+        type: string
+        description: Hex session id from createAvatarSession
+
+  schemas:
+    ErrorBody:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: |
+            Gateway error codes include:
+            `FLASHHEAD_NOT_READY` (503),
+            `SESSION_NOT_FOUND` (404),
+            `CHUNK_NOT_FOUND` (404).
+      required: [detail]
+
+    CreateSessionRequest:
+      type: object
+      properties:
+        avatar_id:
+          type: string
+          default: xiaoya_v1
+          description: Avatar asset id; defaults to xiaoya_v1 when omitted
+
+    CreateSessionResponse:
+      type: object
+      required: [session_id]
+      properties:
+        session_id:
+          type: string
+        livetalking_session_id:
+          type: string
+          description: Compatibility alias equal to session_id
+        webrtc_url:
+          type: string
+          description: Empty in MSE mode
+        livetalking_base_url:
+          type: string
+        audio_ws_path:
+          type: string
+          example: /v1/avatar/{session_id}/audio/ws
+        frames_ws_path:
+          type: string
+          example: /v1/avatar/{session_id}/frames/ws
+        av_ws_path:
+          type: string
+          example: /v1/avatar/{session_id}/av/ws
+        av_sse_path:
+          type: string
+          example: /v1/avatar/{session_id}/av/sse
+        backend:
+          type: string
+          example: flashhead
+        av_mux:
+          type: boolean
+        av_mode:
+          type: string
+          example: mse_fmp4
+        face_mse_format:
+          type: string
+          enum: [fmp4, mp4, mpegts]
+          description: Remux format for MSE segments (env FACE_MSE_FORMAT)
+        composite:
+          type: boolean
+        aspect_ratio:
+          type: string
+          example: "2:3"
+        layout:
+          type: string
+          enum: [backend_composite, frontend_stack]
+        preset_clip_id:
+          type: string
+          nullable: true
+
+    HealthResponse:
+      type: object
+      required: [status, backend]
+      properties:
+        status:
+          type: string
+          enum: [ok, starting]
+        backend:
+          type: string
+          example: flashhead
+        mode:
+          type: string
+          description: engine (dual-process) or embedded
+        engine_url:
+          type: string
+          nullable: true
+        livetalking_ready:
+          type: boolean
+          description: Demo-compat alias of ready
+        avatar_id:
+          type: string
+        gpu:
+          type: string
+        pcm_ws:
+          type: boolean
+        av_mux:
+          type: boolean
+        av_mode:
+          type: string
+          example: mse_fmp4
+        face_mse_format:
+          type: string
+        pcm_http:
+          type: boolean
+        face_wait_tts_end:
+          type: boolean
+        face_preroll_ms:
+          type: integer
+        face_flush_ms:
+          type: integer
+        face_job_ms:
+          type: integer
+        face_out_ms:
+          type: integer
+        face_out_follow_ms:
+          type: integer
+        height:
+          type: integer
+          nullable: true
+        width:
+          type: integer
+          nullable: true
+        tgt_fps:
+          type: integer
+          nullable: true
+        display_size:
+          nullable: true
+        upscale:
+          type: boolean
+        upscale_model:
+          type: string
+          nullable: true
+        composite:
+          type: boolean
+        canvas_width:
+          type: integer
+          nullable: true
+        canvas_height:
+          type: integer
+          nullable: true
+        aspect_ratio:
+          type: string
+        layout:
+          type: string
+        tier:
+          nullable: true
+
+    AvMp4SseEvent:
+      type: object
+      description: Payload inside SSE `data:` for a ready segment
+      required: [type, chunk, url]
+      properties:
+        type:
+          type: string
+          const: av_mp4
+        chunk:
+          type: integer
+        bytes:
+          type: integer
+        fps:
+          type: integer
+        duration_ms:
+          type: integer
+        format:
+          type: string
+          description: fmp4 | mp4 | mpegts
+        url:
+          type: string
+          description: Relative path to GET the segment bytes
+
+    StatusSseEvent:
+      type: object
+      required: [type, event]
+      properties:
+        type:
+          type: string
+          const: status
+        event:
+          type: string
+          enum: [open, turn_reset]
+        mode:
+          type: string
+        preroll_hint:
+          type: integer
+          description: MSE clients should start at chunk=1 when hint is 1
+        backend:
+          type: string
