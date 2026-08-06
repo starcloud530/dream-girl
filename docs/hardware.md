@@ -21,6 +21,8 @@
 - CPU-only talking head
 - Guaranteed multi-tenant concurrency on one card
 
+Mac debug (Orch + Edge/Mock TTS, no talking-head): [mac-debug.md](mac-debug.md).
+
 ## Disk layout (AutoDL)
 
 | Path | Use |
