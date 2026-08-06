@@ -1,0 +1,85 @@
+# Dream Girl — experimental Docker GPU skeleton (issue #8)
+# Not the supported deploy path; prefer deploy/autodl/ on bare Linux + NVIDIA.
+# Images below are placeholders — do not expect a cold `compose up` to work.
+# Weights are NEVER baked into image layers; mount DREAM_GIRL_MODELS_ROOT at runtime.
+
+name: dream-girl
+
+services:
+  # Orchestrator + Web UI
+  orch:
+    image: dream-girl/orch:experimental
+    ports:
+      - "6006:6006"
+    environment:
+      DREAM_GIRL_MODELS_ROOT: /models
+    volumes:
+      - ${DREAM_GIRL_MODELS_ROOT:-./models}:/models:ro
+    depends_on:
+      - gateway
+      - omni
+    # GPU intent (honored under Compose with NVIDIA Container Toolkit / Swarm deploy)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    profiles: ["gpu"]
+
+  # FlashHead Avatar Gateway
+  gateway:
+    image: dream-girl/gateway:experimental
+    ports:
+      - "6008:6008"
+    environment:
+      DREAM_GIRL_MODELS_ROOT: /models
+    volumes:
+      - ${DREAM_GIRL_MODELS_ROOT:-./models}:/models:ro
+    depends_on:
+      - engine
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    profiles: ["gpu"]
+
+  # FlashHead Avatar Engine
+  engine:
+    image: dream-girl/engine:experimental
+    ports:
+      - "6009:6009"
+    environment:
+      DREAM_GIRL_MODELS_ROOT: /models
+    volumes:
+      - ${DREAM_GIRL_MODELS_ROOT:-./models}:/models:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    profiles: ["gpu"]
+
+  # Qwen-TTS via vLLM-Omni
+  omni:
+    image: dream-girl/omni:experimental
+    ports:
+      - "8091:8091"
+    environment:
+      DREAM_GIRL_MODELS_ROOT: /models
+    volumes:
+      - ${DREAM_GIRL_MODELS_ROOT:-./models}:/models:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    profiles: ["gpu"]
