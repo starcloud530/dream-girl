@@ -15,6 +15,8 @@
 | Smaller VRAM | Use MiniMax/Edge TTS; run only FlashHead locally |
 | Multi-machine | Orch+Web anywhere; Gateway/Engine on GPU box; TTS optional remote |
 
+Mac debug (Orch + Edge/Mock TTS, no talking-head): [mac-debug.md](mac-debug.md).
+
 ## Not supported (MVP)
 
 - Apple Silicon GPU path for FlashHead
