@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
+# optional / Mac debug — NOT the production entry (use deploy/autodl/).
 # SSH tunnel: local 6006/6008 → remote Orchestrator / Avatar Gateway
 # Requires DREAM_GIRL_SSH_ENV with HOST/PORT[/PASS]. No instance defaults.
+# CYBER_GF_SSH_ENV is a deprecated alias for the same env-file path.
 set -euo pipefail
 ENV_FILE="${DREAM_GIRL_SSH_ENV:-${CYBER_GF_SSH_ENV:-}}"
 if [[ -z "${ENV_FILE}" || ! -f "${ENV_FILE}" ]]; then

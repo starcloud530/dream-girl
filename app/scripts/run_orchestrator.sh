@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# optional / Mac debug — NOT the production entry (use deploy/autodl/).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "${ROOT}"

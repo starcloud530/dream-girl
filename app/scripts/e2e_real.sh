@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# optional / Mac debug — NOT the production entry (use deploy/autodl/).
 # 真实 API 冒烟（DeepSeek + Edge TTS，无 mock）
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

@@ -59,6 +59,11 @@ Open the AutoDL custom service mapped to **port 6006** (HTTPS portal).
 | `deploy/autodl/` | One-click install / start / health |
 | `assets/character/` | Demo portrait (replace for production) |
 
+### 主路径 vs `app/scripts`
+
+**生产 / 开源默认只用 [`deploy/autodl/`](deploy/autodl/)**（`install.sh` → `start_all.sh` → `healthcheck.sh`）。  
+`app/scripts/*`（rsync / tunnel / Mac 本地 start / e2e）是 **optional / Mac debug**，不是一键部署入口；日常贡献与冷机验收请勿把它们当成主路径。SSH 辅助脚本统一读 `DREAM_GIRL_SSH_ENV`（见 [CONTRIBUTING.md](CONTRIBUTING.md)）。
+
 ## License
 
 Apache-2.0 for this repository's orchestration and deploy scripts. Third-party models/runtimes: see [NOTICE](NOTICE).
