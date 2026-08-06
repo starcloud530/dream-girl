@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# optional / Mac debug — NOT the production entry (use deploy/autodl/).
 # 启动可真实测试的产品（Mac orchestrator）
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

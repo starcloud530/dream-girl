@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# optional / Mac debug — NOT the production entry (use deploy/autodl/).
 # 本地冒烟：health → session → message → 等待 WS assistant_done
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

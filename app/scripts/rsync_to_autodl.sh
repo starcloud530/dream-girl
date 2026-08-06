@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Sync app/ to a remote AutoDL box (optional helper; prefer git pull on GPU).
-# Requires DREAM_GIRL_SSH_ENV (or CYBER_GF_SSH_ENV) with HOST/PORT[/PASS].
+# optional / Mac debug — NOT the production entry (use deploy/autodl/).
+# Sync app/ to a remote AutoDL box (prefer git pull on GPU).
+# Requires DREAM_GIRL_SSH_ENV with HOST/PORT[/PASS].
+# CYBER_GF_SSH_ENV is a deprecated alias for the same env-file path.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ENV_FILE="${DREAM_GIRL_SSH_ENV:-${CYBER_GF_SSH_ENV:-}}"
