@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "issue/**"]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bash-syntax:
+    name: bash -n (deploy/autodl)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax-check deploy/autodl shell scripts
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(deploy/autodl/*.sh)
+          if [[ ${#files[@]} -eq 0 ]]; then
+            echo "ERROR: no deploy/autodl/*.sh found" >&2
+            exit 1
+          fi
+          for f in "${files[@]}"; do
+            echo "bash -n ${f}"
+            bash -n "${f}"
+          done
+          echo "bash -n: OK (${#files[@]} files)"
+
+  secret-scan:
+    name: secret / fingerprint scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ripgrep
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ripgrep
+      - name: Ban seetacloud instances, /Users/, sk- keys
+        run: bash .github/scripts/secret_scan.sh
+
+  # Optional light lint — app/packages only; no GPU. Critical rules only so
+  # pre-existing style debt outside this issue's scope does not block CI.
+  ruff:
+    name: ruff (app/packages)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+        with:
+          src: "app/packages"
+          args: "check --select E9,F63,F7,F82"
