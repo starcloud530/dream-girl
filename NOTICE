@@ -6,19 +6,30 @@ Apache-2.0 (see LICENSE). Third-party models and runtimes keep their own terms.
 You must review and comply with each upstream license before use (especially
 commercial use).
 
+**Model weights are NOT distributed with this repository.** Deploy / download
+scripts fetch them into `DREAM_GIRL_MODELS_ROOT` (or your configured models
+root) at install time. Do not commit `.pth` / `.safetensors` / large media.
+
 ## SoulX-FlashHead / talking-head runtime
 
 - Code under `vendor/flashhead/` is adapted from the SoulX-FlashHead / lightning
   acceleration shell used in our demo stack.
-- Upstream project and license: check the original SoulX-FlashHead repository
-  and any Model_Pro weight license before redistribution or commercial use.
-- Model weights are NOT shipped in this repo; download via deploy scripts.
+- Upstream code: https://github.com/Soul-AILab/SoulX-FlashHead
+  (see that repo's LICENSE; commonly Apache-2.0 — verify on the source).
+- Upstream weights (`SoulX-FlashHead-1_3B`, including `Model_Pro`):
+  https://huggingface.co/Soul-AILab/SoulX-FlashHead-1_3B
+  Review the model card / license before redistribution or commercial use.
+- Weights are NOT shipped in this repo; download via deploy scripts only.
 
 ## Qwen3-TTS
 
 - Runtime: vLLM-Omni serving Qwen3-TTS CustomVoice (default 0.6B).
-- Model cards / licenses: Alibaba Qwen / ModelScope / Hugging Face pages for
-  `Qwen3-TTS-12Hz-*-CustomVoice`. Follow their terms.
+- Model cards / licenses (follow their terms; weights not in this repo):
+  - https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice
+  - https://modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice
+  - Larger variants: `Qwen3-TTS-12Hz-*-CustomVoice` on the same orgs.
+- Upstream project overview: https://github.com/QwenLM/Qwen3-TTS (if published;
+  otherwise rely on the model-card LICENSE files above).
 
 ## vLLM / vLLM-Omni
 
@@ -39,5 +50,7 @@ commercial use).
 
 ## Character assets
 
-- Sample portraits under `assets/character/` are demo placeholders for the
-  open-source MVP. Replace with your own licensed images for production.
+- Sample portraits under `assets/character/` are **demo-only** placeholders for
+  the open-source MVP. They are not a production likeness grant.
+- For any commercial or public deployment, replace them with images you own or
+  have licensed. See `assets/character/README.md`.
