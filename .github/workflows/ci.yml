@@ -1,0 +1,59 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-shell-and-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: bash -n deploy scripts
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(deploy/autodl/*.sh)
+          if [[ ${#files[@]} -eq 0 ]]; then
+            echo "no deploy/autodl/*.sh found"; exit 1
+          fi
+          for f in "${files[@]}"; do
+            echo "bash -n $f"
+            bash -n "$f"
+          done
+
+      - name: install ripgrep
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ripgrep
+
+      - name: forbid instance fingerprints / local paths / leaked keys
+        run: |
+          set -euo pipefail
+          # Fail if real AutoDL instance host (digits after uu/u), fixed-looking SSH ports in defaults,
+          # absolute /Users paths, or OpenAI-style sk- keys appear in tracked files.
+          if rg -n --glob '!.git/**' \
+            -e 'uu[0-9]+-[0-9]+\.[a-z0-9]+\.seetacloud\.com' \
+            -e 'u[0-9]+-[0-9]+\.[a-z0-9]+\.seetacloud\.com' \
+            -e 'PORT=\{?CYBER_GF_SSH_PORT:-[0-9]{4,5}\}?' \
+            -e 'CYBER_GF_SSH_PORT:-[0-9]{4,5}' \
+            -e '/Users/[A-Za-z0-9._\u4e00-\u9fff/-]+' \
+            -e 'sk-[A-Za-z0-9]{20,}' \
+            . ; then
+            echo "::error::Forbidden fingerprint / secret pattern found"
+            exit 1
+          fi
+          echo "secret/path scan clean"
+
+  optional-ruff:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: ruff app/packages
+        run: |
+          pip install -q ruff
+          ruff check app/packages || true
